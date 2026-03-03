@@ -1,5 +1,5 @@
 # SmsConfirmationView [![](https://jitpack.io/v/fraggjkee/sms-confirmation-view.svg)](https://jitpack.io/#fraggjkee/sms-confirmation-view)
-A custom Android's `View` implementing all the necessary UI for a typical "enter SMS / PIN code" flow. Can be used for verification of any digit-based codes (SMS verification, PIN verification, etc.).
+A custom Android's `View` implementing all the necessary UI for a typical "enter SMS / PIN code" flow. Can be used for verification of any alphanumeric codes (a-z, A-Z, 0-9).
 
 Supports **automatic code retrieval from incoming SMS messages**. This feature is implemented using the [Consent API](https://developers.google.com/identity/sms-retriever/user-consent/overview).
 
@@ -48,7 +48,7 @@ view.onChangeListener = SmsConfirmationView.OnChangeListener { code, isComplete 
 You cal also get/set the code using the `enteredCode` property.
 
 # DataBinding
-This SMS verification view supports Android's DataBinding framework, including its two-way version. The list of available adapters can be found [here](https://github.com/fraggjkee/sms-confirmation-view/blob/master/library/src/main/java/com/fraggjkee/smsconfirmationview/BindingAdapters.kt).
+This verification view supports Android's DataBinding framework, including its two-way version. The list of available adapters can be found [here](https://github.com/fraggjkee/sms-confirmation-view/blob/master/library/src/main/java/com/fraggjkee/smsconfirmationview/BindingAdapters.kt).
 
 # Customization
 <img src="images/demo.png?raw=true" width="400">
@@ -73,7 +73,11 @@ All of these attributes can also be changed **programmatically** (XML customizat
 
 # SMS Detection modes
 - `app:scv_smsDetectionMode="disabled"`: Prevents the view from using SMS Consent API, i.e. this option simply disables automatic SMS detection.
-- `app:scv_smsDetectionMode="auto"`: Default option. `SmsConfirmationView` will try to use SMS Consent API to detect incoming messages and extract confirmation codes out of the messages.
+- `app:scv_smsDetectionMode="auto"`: Default option. `SmsConfirmationView` will try to use SMS Consent API to detect incoming messages and extract alphanumeric confirmation codes out of the messages.
+
+By default, the library uses the following regex to extract the code from the message:
+`(?<=:\s)[A-Za-z0-9]{codeLength}\b`. This means it will look for an alphanumeric code of `codeLength` that follows a colon and a space (e.g., "Your code is: A1B2").
+
 - `app:scv_smsDetectionMode="manual"`: Like `auto` but gives you more control when to actually start listening for incoming messages via `startListeningForIncomingMessages` method. Can be useful in some cases as SMS Consent API cannot be active for more than 5 minutes.
 
 License

@@ -37,17 +37,16 @@ class SmsConfirmationView @JvmOverloads constructor(
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
     /**
-     * Getter & setter for the entered code. For setter, only digits are accepted so non-digit
-     * symbols will be ignored.
+     * Getter & setter for the entered code. For setter, alphanumeric symbols are accepted.
      */
     var enteredCode: String = ""
         set(value) {
-            val digits = value.digits()
-            require(digits.length <= codeLength) { "enteredCode=$digits is longer than $codeLength" }
-            field = digits
+            val code = value.alphanumeric()
+            require(code.length <= codeLength) { "enteredCode=$code is longer than $codeLength" }
+            field = code
             onChangeListener?.onCodeChange(
-                code = digits,
-                isComplete = digits.length == codeLength
+                code = code,
+                isComplete = code.length == codeLength
             )
             updateState()
         }
@@ -87,7 +86,7 @@ class SmsConfirmationView @JvmOverloads constructor(
     }
 
     private val actionModeCallback: ActionMode.Callback = ActionModeCallback(context) { text ->
-        enteredCode = text.digits().take(codeLength)
+        enteredCode = text.alphanumeric().take(codeLength)
     }
 
     private var smsRetrieverResultLauncher: ActivityResultLauncher<Intent>? = null
@@ -194,8 +193,8 @@ class SmsConfirmationView @JvmOverloads constructor(
 
     private fun handleKeyEvent(keyCode: Int, event: KeyEvent): Boolean = when {
         event.action != KeyEvent.ACTION_DOWN -> false
-        event.isDigitKey() -> {
-            val enteredSymbol = event.keyCharacterMap.getNumber(keyCode)
+        event.isAlphanumericKey() -> {
+            val enteredSymbol = event.unicodeChar.toChar()
             appendSymbol(enteredSymbol)
             true
         }
@@ -213,8 +212,8 @@ class SmsConfirmationView @JvmOverloads constructor(
         else -> false
     }
 
-    private fun KeyEvent.isDigitKey(): Boolean {
-        return keyCode in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9
+    private fun KeyEvent.isAlphanumericKey(): Boolean {
+        return Character.isLetterOrDigit(unicodeChar)
     }
 
     private fun appendSymbol(symbol: Char) {
@@ -237,7 +236,7 @@ class SmsConfirmationView @JvmOverloads constructor(
 
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
         with(outAttrs) {
-            inputType = InputType.TYPE_CLASS_NUMBER
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
             imeOptions = EditorInfo.IME_ACTION_DONE
         }
         return object : InputConnectionWrapper(BaseInputConnection(this, false), true) {
