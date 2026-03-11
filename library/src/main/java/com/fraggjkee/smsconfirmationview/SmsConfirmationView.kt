@@ -236,7 +236,6 @@ class SmsConfirmationView @JvmOverloads constructor(
 
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
         with(outAttrs) {
-            inputType = InputType.TYPE_CLASS_TEXT
             imeOptions = EditorInfo.IME_ACTION_DONE
         }
         return object : InputConnectionWrapper(BaseInputConnection(this, false), true) {
